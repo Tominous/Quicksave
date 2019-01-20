@@ -294,7 +294,8 @@ class Quicksave {
         this.injectThumbIcons();
     }
     stop  () {
-        BdApi.clearCSS(this.getName());
+		BdApi.clearCSS(`${this.getName()}`);
+		BdApi.clearCSS(`${this.getName()}-style`);
         this.initialized = false;
     }
 	load  () {
