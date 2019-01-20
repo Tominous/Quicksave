@@ -1,6 +1,6 @@
 //META{"name":"Quicksave"}*//
 
-/* global $, ReactUtilities, ZLibrary, navigator, BdApi */
+/* global $, ReactUtilities, ZLibrary, PluginSettings, navigator, BdApi */
 
 class Quicksave {
     get local() {
