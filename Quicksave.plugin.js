@@ -1,10 +1,10 @@
 //META{"name":"Quicksave"}*//
 
-/* global $, ReactUtilities, PluginUtilities, PluginSettings, navigator, BdApi */
+/* global $, ReactUtilities, ZLibrary, PluginSettings, navigator, BdApi */
 
 class Quicksave {
     get local() {
-        let lang = navigator.language;
+		let lang = navigator.language;
         if (document.documentElement.getAttribute('lang'))
             lang = document.documentElement.getAttribute('lang').split('-')[0];
         switch (lang) {
@@ -276,22 +276,20 @@ class Quicksave {
     getAuthor     () { return "Nirewen"             }
     getName       () { return "Quicksave"           }
     getDescription() { return this.local.description}
-    getVersion    () { return "0.3.0"               }
+    getVersion    () { return "0.3.1"               }
     start         () {
         let self = this;
-        $('#zeresLibraryScript').remove();
-        $('head').append($("<script type='text/javascript' id='zeresLibraryScript' src='https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js'>"));
-        
-        if (typeof window.ZeresLibrary !== "undefined")
-            this.initialize();
-        else
-            $('#zeresLibraryScript').on("load", () => self.initialize());
+        let libraryScript = document.getElementById('zeresLibraryScript');
+		
+		if (typeof window.ZLibrary !== "undefined") this.initialize();
+        else libraryScript.addEventListener('load', () => this.initialize());
     }
     initialize() {
+		console.log(this.local.startMessage);
         BdApi.injectCSS(this.getName(), this.css.modals);
         BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
-        PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
-        PluginUtilities.showToast(PluginUtilities.formatString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
+		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
+        ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
         this.initialized = true;
         this.loadSettings();
         this.injectThumbIcons();
@@ -300,7 +298,21 @@ class Quicksave {
         BdApi.clearCSS(this.getName());
         this.initialized = false;
     }
-    load  () {BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)}
+	load  () {
+		BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
+		let libraryScript = document.getElementById('zeresLibraryScript');
+
+        if (!libraryScript) {
+            libraryScript = document.createElement('script');
+            libraryScript.setAttribute('type', 'text/javascript');
+            /*Borrowed from Zere, so it redirects the user to download the Lib if it does not load correctly and the user does not have it.*/
+            libraryScript.onload = function() {if(typeof ZLibrary === "undefined") {window.BdApi.alert("Library Missing",`The library plugin needed for ` + 'ThemePreview' + ` is missing and could not be loaded.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}};
+            libraryScript.setAttribute('src', 'https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
+            libraryScript.setAttribute('id', 'zeresLibraryScript');
+            document.head.appendChild(libraryScript);
+		}
+}
+	
     unload() {BdApi.clearCSS(`${this.getName()}-inputs`)}
     accessSync(dir) {
         let fs = require('fs');
@@ -347,7 +359,7 @@ class Quicksave {
                 modal.find('button.cancel').click(e => self.closeModal(modal));
                 modal.find('button.overwrite').click(e => self.saveCurrentFile(url, modal.find('.already_exists .file-name').text(), true));
                 modal.find('button.gen-random').click(e => self.saveCurrentFile(url, this.randomFilename64(this.settings.fnLength)));
-                modal.find('button.choose-new').click(e => self.openModal($(PluginUtilities.formatString(self.modals.name, {
+                modal.find('button.choose-new').click(e => self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
                     insertFilename: this.local.modals.filenameChoose.insertFilename,
                     cancel: this.local.modals.generalButtons.cancel,
                     save: this.local.modals.generalButtons.save
@@ -386,7 +398,7 @@ class Quicksave {
                         if (videoEl) filePath = videoEl.attributes['src'].nodeValue;
                         else filePath = $('.modal-1UGdnR .inner-1JeGVc').find('a').filter('[href^="http"]')[0].attributes['href'].nodeValue;
                         if (e.shiftKey)
-                            self.openModal($(PluginUtilities.formatString(self.modals.name, {
+                            self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
                                 insertFilename: this.local.modals.filenameChoose.insertFilename,
                                 cancel: this.local.modals.generalButtons.cancel,
                                 save: this.local.modals.generalButtons.save
@@ -419,7 +431,7 @@ class Quicksave {
                         item.find('span').html(self.local.quicksave);
                         $(elem[0]).hide();
                         if (e.shiftKey) {
-                            self.openModal($(PluginUtilities.formatString(self.modals.name, {
+                            self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
                                 insertFilename: this.local.modals.filenameChoose.insertFilename,
                                 cancel: this.local.modals.generalButtons.cancel,
                                 save: this.local.modals.generalButtons.save
@@ -440,7 +452,7 @@ class Quicksave {
                     e.stopPropagation();
                     tooltip.tooltip.remove();
                     if (e.shiftKey) {
-                        self.openModal($(PluginUtilities.formatString(self.modals.name, {
+                        self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
                             insertFilename: this.local.modals.filenameChoose.insertFilename,
                             cancel: this.local.modals.generalButtons.cancel,
                             save: this.local.modals.generalButtons.save
@@ -492,11 +504,11 @@ class Quicksave {
 	}
     
     saveSettings() {
-        PluginUtilities.saveSettings(this.getName(), this.settings);
+        ZLibrary.PluginUtilities.saveSettings(this.getName(), this.settings);
     }
 
     loadSettings() {
-        this.settings = PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
+        this.settings = ZLibrary.PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
     }
 
     getSettingsPanel() {
@@ -559,7 +571,7 @@ class Quicksave {
     
     saveCurrentFile(url, filename, overwrite = false) {
         if (url == '') {
-            PluginUtilities.showToast(this.local.modals.error.invalidUrl, {type: 'error'});
+            ZLibrary.Toasts.show(this.local.modals.error.invalidUrl, {type: 'error'});
             return;
         }
 
@@ -601,8 +613,8 @@ class Quicksave {
             filename = this.addNumber(filename, filetype);
 
         if (this.accessSync(dir + filename + filetype) && !overwrite && !this.settings.addnum) {
-            return this.openModal($(PluginUtilities.formatString(this.modals.error, {
-                alreadyExists: PluginUtilities.formatString(this.local.modals.error.alreadyExists, {filename, filetype}),
+            return this.openModal($(ZLibrary.Utilities.formatTString(this.modals.error, {
+                alreadyExists: ZLibrary.Utilities.formatTString(this.local.modals.error.alreadyExists, {filename, filetype}),
                 question: this.local.modals.error.question,
                 cancel: this.local.modals.generalButtons.cancel,
                 chooseNew: this.local.modals.error.chooseNew,
@@ -617,7 +629,7 @@ class Quicksave {
             filename = this.randomFilename64(this.settings.fnLength);
 
         if (tries == -1)
-            return PluginUtilities.showToast(this.local.noFreeName, {type: 'error'});
+            return ZLibrary.Toasts.show(this.local.noFreeName, {type: 'error'});
 
         filename += filetype;
 
@@ -629,15 +641,15 @@ class Quicksave {
             res.pipe(file);
             file.on('finish', () => {
                 button.html(self.local.quicksave);
-                PluginUtilities.showToast(self.local.finished, {type: 'success'});
+                ZLibrary.Toasts.show(self.local.finished, {type: 'success'});
                 if (self.settings.showfn)
-                    PluginUtilities.showToast(PluginUtilities.formatString(self.local.filename, {filename}), {type: 'info'});
+                    ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(self.local.filename, {filename}), {type: 'info'});
                 file.close();
                 
             });
         }).on('error', err => {
             fs.unlink(dest);
-            PluginUtilities.showToast(err.message, {type: 'error'});
+            ZLibrary.Toasts.show(err.message, {type: 'error'});
             file.close();
         });
     }
