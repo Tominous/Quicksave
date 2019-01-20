@@ -1,6 +1,6 @@
 //META{"name":"Quicksave"}*//
 
-/* global $, ReactUtilities, ZLibrary, PluginSettings, navigator, BdApi */
+/* global $, ReactUtilities, ZLibrary, navigator, BdApi */
 
 class Quicksave {
     get local() {
@@ -527,30 +527,32 @@ class Quicksave {
         return panel[0];
     }
     generateSettings(panel) {
-        new PluginSettings.ControlGroup(this.local.settings.panel, () => this.saveSettings(), {shown: true}).appendTo(panel).append(
-            new PluginSettings.Textbox(this.local.settings.labels.directory, '', this.settings.directory, 'none', text => {
-                text.endsWith('/')
-                    ? this.settings.directory = text
-                    : this.settings.directory = text + '/';
-            }, {
-                width: '400px',
-                class: 'quicksave input'
+        new ZLibrary.Settings.SettingGroup(this.local.settings.panel, {callback: this.loadSettings(), collapsible: true, shown: true}).appendTo(panel).append(
+            new ZLibrary.Settings.Textbox(this.local.settings.labels.directory, '', this.settings.directory, text => {
+                if (!text.endsWith('/')) this.settings.directory = text + '/'; else this.settings.directory = text;
+				this.saveSettings();
             }),
-            new PluginSettings.Checkbox(this.local.settings.labels.original, this.local.settings.help.original, this.settings.norandom, checked => {
-                this.settings.norandom = checked;
+            new ZLibrary.Settings.Switch(this.local.settings.labels.original, this.local.settings.help.original, this.settings.norandom, checked => {
+				this.settings.norandom = checked;
+				this.saveSettings();
             }),
-            new PluginSettings.Checkbox(this.local.settings.labels.randomizeUnknown, this.local.settings.help.randomizeUnknown, this.settings.randomizeUnknown, checked => {
-                this.settings.randomizeUnknown = checked;
+            new ZLibrary.Settings.Switch(this.local.settings.labels.randomizeUnknown, this.local.settings.help.randomizeUnknown, this.settings.randomizeUnknown, checked => {
+				this.settings.randomizeUnknown = checked;
+				this.saveSettings();
             }),
-            new PluginSettings.Checkbox(this.local.settings.labels.filename, this.local.settings.help.filename, this.settings.showfn, checked => {
-                this.settings.showfn = checked;
-            }),
-            new PluginSettings.SettingField(this.local.settings.labels.randomLength, '', {type: 'number', value: `${this.settings.fnLength}`, class: 'quicksave input', min: '1'}, number => {
-                this.settings.fnLength = number;
-            }),
-            new PluginSettings.Checkbox(this.local.settings.labels.autoAddNum, this.local.settings.help.autoAddNum, this.settings.addnum, checked => {
-                this.settings.addnum = checked;
-            }),
+            new ZLibrary.Settings.Switch(this.local.settings.labels.filename, this.local.settings.help.filename, this.settings.showfn, checked => {
+				this.settings.showfn = checked;
+				this.saveSettings();
+			}),
+			new ZLibrary.Settings.Textbox(this.local.settings.labels.randomLength, '', this.settings.fnLength, text => {
+				if (parseInt(text, 10) !== NaN) this.settings.fnLength = parseInt(text, 10);
+				this.saveSettings();
+			}),
+            new ZLibrary.Settings.Switch(this.local.settings.labels.autoAddNum, this.local.settings.help.autoAddNum, this.settings.addnum, checked => {
+				this.settings.addnum = checked;
+				this.saveSettings();
+			}));
+			panel.append(
             $(`<div class='protip-12obwm inline-136HKr'>
                 <div class='pro-1T8RK7 small-29zrCQ size12-3R0845 height16-2Lv3qA statusGreen-pvYWjA weightBold-2yjlgw'>${this.local.settings.protip.label}</div>
                 <div class='tip-2ab612 primary-jw0I4K'>${this.local.settings.protip.tip}</div>
