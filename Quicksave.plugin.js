@@ -1,6 +1,6 @@
 //META{"name":"Quicksave"}*//
 
-/* global $, ReactUtilities, ZLibrary, PluginSettings, navigator, BdApi */
+/* global $, ReactUtilities, ZLibrary, navigator, BdApi */
 
 class Quicksave {
     get local() {
@@ -289,7 +289,7 @@ class Quicksave {
         BdApi.injectCSS(this.getName(), this.css.modals);
         BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
 		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
-        ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
+        if (settingsCookie['fork-ps-2'] === false) ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
         this.initialized = true;
         this.loadSettings();
         this.injectThumbIcons();
@@ -300,7 +300,8 @@ class Quicksave {
     }
 	load  () {
 		BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
-		let libraryScript = document.getElementById('zeresLibraryScript');
+        let libraryScript = document.getElementById('zeresLibraryScript');
+        let legacyLibScript = document.getElementById('zeresLegacyLibraryScript');
 
         if (!libraryScript) {
             libraryScript = document.createElement('script');
@@ -310,7 +311,16 @@ class Quicksave {
             libraryScript.setAttribute('src', 'https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
             libraryScript.setAttribute('id', 'zeresLibraryScript');
             document.head.appendChild(libraryScript);
-		}
+        }
+
+        if (!legacyLibScript) {
+            legacyLibScript = document.createElement('script');
+            legacyLibScript.setAttribute('type', 'text/javascript');
+            legacyLibScript.onload = function() {if(typeof PluginUtilities === "undefined") {window.BdApi.alert("Legacy Library Missing",`ThemePreview relies on a depricated library to operate it's settings panel, the settings panel for the plugin will not be operable until this is remedied. If you want to remove whatever settings were set for ThemePreview, goto your plugins folder and delete the file named, 'ThemePreview.config.json'.`);}};
+            legacyLibScript.setAttribute('src', 'https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js');
+            legacyLibScript.setAttribute('id', 'zeresLegacyLibraryScript');
+            document.head.appendChild(legacyLibScript);
+        }
 }
 	
     unload() {BdApi.clearCSS(`${this.getName()}-inputs`)}
