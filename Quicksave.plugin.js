@@ -286,8 +286,8 @@ class Quicksave {
     }
     initialize() {
 		console.log(this.local.startMessage);
-        BdApi.injectCSS(this.getName(), this.css.modals);
-        BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
+        if (!$('#${this.getName()}')) BdApi.injectCSS(this.getName(), this.css.modals);
+        if (!$('#${this.getName()}-style')) BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
 		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
         if (settingsCookie['fork-ps-2'] === false) ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
         this.initialized = true;
@@ -299,7 +299,7 @@ class Quicksave {
         this.initialized = false;
     }
 	load  () {
-		BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
+		if (!$('#${this.getName()}-inputs')) BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
         let libraryScript = document.getElementById('zeresLibraryScript');
         let legacyLibScript = document.getElementById('zeresLegacyLibraryScript');
 
