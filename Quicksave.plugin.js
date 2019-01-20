@@ -301,7 +301,6 @@ class Quicksave {
 	load  () {
 		if (!document.getElementById(`${this.getName()}-inputs`)) BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
         let libraryScript = document.getElementById('zeresLibraryScript');
-        let legacyLibScript = document.getElementById('zeresLegacyLibraryScript');
 
         if (!libraryScript) {
             libraryScript = document.createElement('script');
@@ -311,15 +310,6 @@ class Quicksave {
             libraryScript.setAttribute('src', 'https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
             libraryScript.setAttribute('id', 'zeresLibraryScript');
             document.head.appendChild(libraryScript);
-        }
-
-        if (!legacyLibScript) {
-            legacyLibScript = document.createElement('script');
-            legacyLibScript.setAttribute('type', 'text/javascript');
-            legacyLibScript.onload = function() {if(typeof PluginUtilities === "undefined") {window.BdApi.alert("Legacy Library Missing",`ThemePreview relies on a depricated library to operate it's settings panel, the settings panel for the plugin will not be operable until this is remedied. If you want to remove whatever settings were set for ThemePreview, goto your plugins folder and delete the file named, 'ThemePreview.config.json'.`);}};
-            legacyLibScript.setAttribute('src', 'https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js');
-            legacyLibScript.setAttribute('id', 'zeresLegacyLibraryScript');
-            document.head.appendChild(legacyLibScript);
         }
 }
 	
