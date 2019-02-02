@@ -4,9 +4,8 @@
 
 class Quicksave {
     get local() {
-		let lang = navigator.language;
-        if (document.documentElement.getAttribute('lang'))
-            lang = document.documentElement.getAttribute('lang').split('-')[0];
+	let lang = navigator.language;
+        if (document.documentElement.getAttribute('lang')) lang = document.documentElement.getAttribute('lang').split('-')[0];
         switch (lang) {
             case "es": // Spanish
                 return {
