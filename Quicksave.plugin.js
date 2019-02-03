@@ -4,7 +4,7 @@
 
 class Quicksave {
     get local() {
-	let lang = navigator.language;
+		let lang = navigator.language;
         if (document.documentElement.getAttribute('lang')) lang = document.documentElement.getAttribute('lang').split('-')[0];
         switch (lang) {
             case "es": // Spanish
@@ -418,7 +418,7 @@ class Quicksave {
         }
 
         if (elem.hasClass('contextMenu-HLZMGh')) {
-            let link = ReactUtilities.getReactProperty(elem[0], "return.memoizedProps.attachment.url") || ReactUtilities.getReactProperty(elem[0], "return.memoizedProps.src"),
+            let link = ZLibrary.ReactTools.getReactProperty(elem[0], "return.memoizedProps.attachment.url") || ZLibrary.ReactTools.getReactProperty(elem[0], "return.memoizedProps.src"),
                 item = $(`<div class="item-1Yvehc qs-item"><span>${this.local.quicksave}</span><div class="hint-22uc-R"></div></div>`);
             if (link) {
                 $(document)
@@ -447,7 +447,7 @@ class Quicksave {
 
         if (elem.find('.downloadButton-23tKQp').length) {
             let anchor = elem.find('.downloadButton-23tKQp').parent(),
-                link   = ReactUtilities.getReactProperty(anchor[0], 'memoizedProps.href');
+                link   = ZLibrary.ReactTools.getReactProperty(anchor[0], 'memoizedProps.href');
             anchor
                 .on('click.qs', e => {
                     e.preventDefault();
