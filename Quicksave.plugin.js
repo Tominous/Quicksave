@@ -277,14 +277,11 @@ class Quicksave {
     getDescription() { return this.local.description}
     getVersion    () { return "0.3.1"               }
     start         () {
-		let self = this;
-
 		if (!document.getElementById(`${this.getName()}`)) BdApi.injectCSS(`${this.getName()}`, this.css.modals);
 		if (!document.getElementById(`${this.getName()}-style`)) BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
 		if (!document.getElementById(`${this.getName()}-inputs`)) BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
 
 		let libraryScript = document.getElementById('zeresLibraryScript');
-		
 		if (typeof window.ZLibrary !== "undefined") this.initialize();
 		else libraryScript.addEventListener('load', () => this.initialize());
 	}
@@ -295,26 +292,25 @@ class Quicksave {
 		this.loadSettings();
 		this.injectThumbIcons();
 	}
-	stop  () {
+	stop() {
 		if (document.getElementById(`${this.getName()}`)) BdApi.clearCSS(`${this.getName()}`);
 		if (document.getElementById(`${this.getName()}-style`)) BdApi.clearCSS(`${this.getName()}-style`);
 		if (document.getElementById(`${this.getName()}-inputs`)) BdApi.clearCSS(`${this.getName()}-inputs`)
 		this.RemoveThumbIcons(); /*Stops the timer and removes the elements for the save buttons on the img*/
 		this.initialized = false;
 	}
-	load  () {
-		let libraryScript = document.getElementById('zeresLibraryScript');
+	load() {
+		let libraryScript = document.getElementById('zeresLibraryScript'), self = this;
 		if (!libraryScript) {
 			libraryScript = document.createElement('script');
 			libraryScript.setAttribute('type', 'text/javascript');
-			/*Borrowed from Zere, so it redirects the user to download the Lib if it does not load correctly and the user does not have it.*/
-			libraryScript.onload = function() {if(typeof ZLibrary === "undefined") {window.BdApi.alert("Library Missing",`The library plugin needed for ` + 'ThemePreview' + ` is missing and could not be loaded.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}};
+			/*In part borrowed from Zere, so it redirects the user to download the Lib if it does not load correctly and the user does not have it.*/
+			libraryScript.onload = function() {if(typeof ZLibrary === "undefined") {window.BdApi.alert("Library Missing",`The library plugin needed for ${self.getName()} is missing and could not be loaded.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}};
 			libraryScript.setAttribute('src', 'https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
 			libraryScript.setAttribute('id', 'zeresLibraryScript');
 			document.head.appendChild(libraryScript);
 		}
-}
-	
+	}
     unload() {}
     accessSync(dir) {
         let fs = require('fs');
@@ -528,7 +524,7 @@ class Quicksave {
     generateSettings(panel) {
         new ZLibrary.Settings.SettingGroup(this.local.settings.panel, {callback: this.loadSettings(), collapsible: true, shown: true}).appendTo(panel).append(
             new ZLibrary.Settings.Textbox(this.local.settings.labels.directory, '', this.settings.directory, text => {
-                if (!text.endsWith('/')) this.settings.directory = text + '/'; else this.settings.directory = text;
+                if (!text.endsWith('/')) this.settings.directory = `${text}/`; else this.settings.directory = text;
 				this.saveSettings();
             }),
             new ZLibrary.Settings.Switch(this.local.settings.labels.original, this.local.settings.help.original, this.settings.norandom, checked => {
@@ -617,7 +613,7 @@ class Quicksave {
             || (this.settings.randomizeUnknown && /^(small|medium|large|image|viewimage|unknown)$/.test(filename)))
             filename = this.randomFilename64(this.settings.fnLength);
 
-        let filetype = '.' + fullFilename.split('.').slice(-1)[0],
+        let filetype = `.${fullFilename.split('.').slice(-1)[0]}`,
             tries    = 50;
 
         if (this.settings.addnum)
