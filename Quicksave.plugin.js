@@ -281,13 +281,13 @@ class Quicksave {
 		if (!document.getElementById(`${this.getName()}-style`)) BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
 		if (!document.getElementById(`${this.getName()}-inputs`)) BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
 
-		let libraryScript = document.getElementById('zeresLibraryScript');
+		let libraryScript=document.getElementById('ZLibraryScript');
 		if (typeof window.ZLibrary !== "undefined") this.initialize();
 		else libraryScript.addEventListener('load', () => this.initialize());
 	}
 	initialize() {
-		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
-		if (settingsCookie['fork-ps-2'] === false) ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
+		window.ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
+		if (settingsCookie['fork-ps-2'] === false) window.ZLibrary.Toasts.show(window.ZLibrary.Utilities.formatTString(this.local.startMessage, {pluginName: this.getName(), version: this.getVersion()}));
 		this.initialized = true;
 		this.loadSettings();
 		this.injectThumbIcons();
@@ -300,14 +300,14 @@ class Quicksave {
 		this.initialized = false;
 	}
 	load() {
-		let libraryScript = document.getElementById('zeresLibraryScript'), self = this;
-		if (!libraryScript) {
-			libraryScript = document.createElement('script');
-			libraryScript.setAttribute('type', 'text/javascript');
-			/*In part borrowed from Zere, so it redirects the user to download the Lib if it does not load correctly and the user does not have it.*/
-			libraryScript.onload = function() {if(typeof ZLibrary === "undefined") {window.BdApi.alert("Library Missing",`The library plugin needed for ${self.getName()} is missing and could not be loaded.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}};
-			libraryScript.setAttribute('src', 'https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
-			libraryScript.setAttribute('id', 'zeresLibraryScript');
+		let libraryScript=document.getElementById('ZLibraryScript');
+		if(!window.ZLibrary&&!libraryScript){
+			libraryScript=document.createElement('script');
+			libraryScript.setAttribute('type','text/javascript');
+			/*In part borrowed from Zere, so it redirects the user to download the Lib if it does not load correctly and the user does not have the plugin version of the lib.*/
+			libraryScript.addEventListener("error",function(){if(typeof window.ZLibrary==="undefined"){window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing and could not be loaded.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}}.bind(this));
+			libraryScript.setAttribute('src','https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
+			libraryScript.setAttribute('id','ZLibraryScript');
 			document.head.appendChild(libraryScript);
 		}
 	}
@@ -357,7 +357,7 @@ class Quicksave {
                 modal.find('button.cancel').click(e => self.closeModal(modal));
                 modal.find('button.overwrite').click(e => self.saveCurrentFile(url, modal.find('.already_exists .file-name').text(), true));
                 modal.find('button.gen-random').click(e => self.saveCurrentFile(url, this.randomFilename64(this.settings.fnLength)));
-                modal.find('button.choose-new').click(e => self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
+                modal.find('button.choose-new').click(e => self.openModal($(window.ZLibrary.Utilities.formatTString(self.modals.name, {
                     insertFilename: this.local.modals.filenameChoose.insertFilename,
                     cancel: this.local.modals.generalButtons.cancel,
                     save: this.local.modals.generalButtons.save
@@ -396,7 +396,7 @@ class Quicksave {
                         if (videoEl) filePath = videoEl.attributes['src'].nodeValue;
                         else filePath = $('.modal-1UGdnR .inner-1JeGVc').find('a').filter('[href^="http"]')[0].attributes['href'].nodeValue;
                         if (e.shiftKey)
-                            self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
+                            self.openModal($(window.ZLibrary.Utilities.formatTString(self.modals.name, {
                                 insertFilename: this.local.modals.filenameChoose.insertFilename,
                                 cancel: this.local.modals.generalButtons.cancel,
                                 save: this.local.modals.generalButtons.save
@@ -414,7 +414,7 @@ class Quicksave {
         }
 
         if (elem.hasClass('contextMenu-HLZMGh')) {
-            let link = ZLibrary.ReactTools.getReactProperty(elem[0], "return.memoizedProps.attachment.url") || ZLibrary.ReactTools.getReactProperty(elem[0], "return.memoizedProps.src"),
+            let link = window.ZLibrary.ReactTools.getReactProperty(elem[0], "return.memoizedProps.attachment.url") || window.ZLibrary.ReactTools.getReactProperty(elem[0], "return.memoizedProps.src"),
                 item = $(`<div class="item-1Yvehc qs-item"><span>${this.local.quicksave}</span><div class="hint-22uc-R"></div></div>`);
             if (link) {
                 $(document)
@@ -429,7 +429,7 @@ class Quicksave {
                         item.find('span').html(self.local.quicksave);
                         $(elem[0]).hide();
                         if (e.shiftKey) {
-                            self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
+                            self.openModal($(window.ZLibrary.Utilities.formatTString(self.modals.name, {
                                 insertFilename: this.local.modals.filenameChoose.insertFilename,
                                 cancel: this.local.modals.generalButtons.cancel,
                                 save: this.local.modals.generalButtons.save
@@ -443,14 +443,14 @@ class Quicksave {
 
         if (elem.find('.downloadButton-23tKQp').length) {
             let anchor = elem.find('.downloadButton-23tKQp').parent(),
-                link   = ZLibrary.ReactTools.getReactProperty(anchor[0], 'memoizedProps.href');
+                link   = window.ZLibrary.ReactTools.getReactProperty(anchor[0], 'memoizedProps.href');
             anchor
                 .on('click.qs', e => {
                     e.preventDefault();
                     e.stopPropagation();
                     tooltip.tooltip.remove();
                     if (e.shiftKey) {
-                        self.openModal($(ZLibrary.Utilities.formatTString(self.modals.name, {
+                        self.openModal($(window.ZLibrary.Utilities.formatTString(self.modals.name, {
                             insertFilename: this.local.modals.filenameChoose.insertFilename,
                             cancel: this.local.modals.generalButtons.cancel,
                             save: this.local.modals.generalButtons.save
@@ -509,11 +509,11 @@ class Quicksave {
 	}
     
     saveSettings() {
-        ZLibrary.PluginUtilities.saveSettings(this.getName(), this.settings);
+        window.ZLibrary.PluginUtilities.saveSettings(this.getName(), this.settings);
     }
 
     loadSettings() {
-        this.settings = ZLibrary.PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
+        this.settings = window.ZLibrary.PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
     }
 
     getSettingsPanel() {
@@ -522,28 +522,28 @@ class Quicksave {
         return panel[0];
     }
     generateSettings(panel) {
-        new ZLibrary.Settings.SettingGroup(this.local.settings.panel, {callback: this.loadSettings(), collapsible: true, shown: true}).appendTo(panel).append(
-            new ZLibrary.Settings.Textbox(this.local.settings.labels.directory, '', this.settings.directory, text => {
+        new window.ZLibrary.Settings.SettingGroup(this.local.settings.panel, {callback: this.loadSettings(), collapsible: true, shown: true}).appendTo(panel).append(
+            new window.ZLibrary.Settings.Textbox(this.local.settings.labels.directory, '', this.settings.directory, text => {
                 if (!text.endsWith('/')) this.settings.directory = `${text}/`; else this.settings.directory = text;
 				this.saveSettings();
             }),
-            new ZLibrary.Settings.Switch(this.local.settings.labels.original, this.local.settings.help.original, this.settings.norandom, checked => {
+            new window.ZLibrary.Settings.Switch(this.local.settings.labels.original, this.local.settings.help.original, this.settings.norandom, checked => {
 				this.settings.norandom = checked;
 				this.saveSettings();
             }),
-            new ZLibrary.Settings.Switch(this.local.settings.labels.randomizeUnknown, this.local.settings.help.randomizeUnknown, this.settings.randomizeUnknown, checked => {
+            new window.ZLibrary.Settings.Switch(this.local.settings.labels.randomizeUnknown, this.local.settings.help.randomizeUnknown, this.settings.randomizeUnknown, checked => {
 				this.settings.randomizeUnknown = checked;
 				this.saveSettings();
             }),
-            new ZLibrary.Settings.Switch(this.local.settings.labels.filename, this.local.settings.help.filename, this.settings.showfn, checked => {
+            new window.ZLibrary.Settings.Switch(this.local.settings.labels.filename, this.local.settings.help.filename, this.settings.showfn, checked => {
 				this.settings.showfn = checked;
 				this.saveSettings();
 			}),
-			new ZLibrary.Settings.Textbox(this.local.settings.labels.randomLength, '', this.settings.fnLength, text => {
+			new window.ZLibrary.Settings.Textbox(this.local.settings.labels.randomLength, '', this.settings.fnLength, text => {
 				if (parseInt(text, 10) !== NaN) this.settings.fnLength = parseInt(text, 10);
 				this.saveSettings();
 			}),
-            new ZLibrary.Settings.Switch(this.local.settings.labels.autoAddNum, this.local.settings.help.autoAddNum, this.settings.addnum, checked => {
+            new window.ZLibrary.Settings.Switch(this.local.settings.labels.autoAddNum, this.local.settings.help.autoAddNum, this.settings.addnum, checked => {
 				this.settings.addnum = checked;
 				this.saveSettings();
 			}));
@@ -558,7 +558,7 @@ class Quicksave {
                     this.saveSettings();
                     panel.empty();
                     this.generateSettings(panel);
-                })
+				})
         );
     }
 
@@ -578,7 +578,7 @@ class Quicksave {
     
     saveCurrentFile(url, filename, overwrite = false) {
         if (url == '') {
-            ZLibrary.Toasts.show(this.local.modals.error.invalidUrl, {type: 'error'});
+            window.ZLibrary.Toasts.show(this.local.modals.error.invalidUrl, {type: 'error'});
             return;
         }
 
@@ -620,8 +620,8 @@ class Quicksave {
             filename = this.addNumber(filename, filetype);
 
         if (this.accessSync(dir + filename + filetype) && !overwrite && !this.settings.addnum) {
-            return this.openModal($(ZLibrary.Utilities.formatTString(this.modals.error, {
-                alreadyExists: ZLibrary.Utilities.formatTString(this.local.modals.error.alreadyExists, {filename, filetype}),
+            return this.openModal($(window.ZLibrary.Utilities.formatTString(this.modals.error, {
+                alreadyExists: window.ZLibrary.Utilities.formatTString(this.local.modals.error.alreadyExists, {filename, filetype}),
                 question: this.local.modals.error.question,
                 cancel: this.local.modals.generalButtons.cancel,
                 chooseNew: this.local.modals.error.chooseNew,
@@ -636,7 +636,7 @@ class Quicksave {
             filename = this.randomFilename64(this.settings.fnLength);
 
         if (tries == -1)
-            return ZLibrary.Toasts.show(this.local.noFreeName, {type: 'error'});
+            return window.ZLibrary.Toasts.show(this.local.noFreeName, {type: 'error'});
 
         filename += filetype;
 
@@ -648,15 +648,15 @@ class Quicksave {
             res.pipe(file);
             file.on('finish', () => {
                 button.html(self.local.quicksave);
-                ZLibrary.Toasts.show(self.local.finished, {type: 'success'});
+                window.ZLibrary.Toasts.show(self.local.finished, {type: 'success'});
                 if (self.settings.showfn)
-                    ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(self.local.filename, {filename}), {type: 'info'});
+				window.ZLibrary.Toasts.show(window.ZLibrary.Utilities.formatTString(self.local.filename, {filename}), {type: 'info'});
                 file.close();
                 
             });
         }).on('error', err => {
             fs.unlink(dest);
-            ZLibrary.Toasts.show(err.message, {type: 'error'});
+            window.ZLibrary.Toasts.show(err.message, {type: 'error'});
             file.close();
         });
     }
