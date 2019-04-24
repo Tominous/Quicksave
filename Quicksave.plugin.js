@@ -282,8 +282,8 @@ class Quicksave {
 		if (!document.getElementById(`${this.getName()}-inputs`)) BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
 
 		let libraryScript=document.getElementById('ZLibraryScript');
-		if (typeof ZLibrary !== "undefined") this.initialize();
-		else libraryScript.addEventListener('load', () => this.initialize());
+		if(typeof window.ZLibrary!=="undefined")this.initialize();
+		else libraryScript.addEventListener('load',()=>this.initialize());
 	}
 	initialize() {
 		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
