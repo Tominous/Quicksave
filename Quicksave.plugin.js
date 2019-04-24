@@ -517,7 +517,7 @@ class Quicksave {
 
     getSettingsPanel() {
         let panel = $("<form>").addClass("form").css("width", "100%");
-        if (this.initialized) this.generateSettings(panel);
+        if (this.initialized)this.generateSettings(panel);
         return panel[0];
     }
     generateSettings(panel) {
@@ -553,9 +553,9 @@ class Quicksave {
             </div>`),
             $(`<button type="button" class="button-38aScr lookOutlined-3sRXeN colorRed-1TFJan sizeMedium-1AC_Sl grow-q77ONN" style='margin: 10px 0; float: right;'><div class="contents-18-Yxp">${this.local.reset}</div></button>`)
                 .click(() => {
-                    this.settings = this.defaultSettings;
-                    this.saveSettings();
-                    panel.empty();
+                    this.settings=this.defaultSettings;
+					this.saveSettings();
+					panel.empty();
 					this.generateSettings(panel);
 				})
         );
@@ -591,7 +591,7 @@ class Quicksave {
             
         // Get the last instance of something that looks like a valid filename, the last instance of anything usable at all
 		let fullFilename=/^\w+:\/\/[^\/]+\/(?:.*?\/)*?([^?=\/\\]+\.\w{3,}(?!.*\.)|[\w-\.]+(?=$|\/mp4))/.exec(url);
-		
+
 		// On some occasions fullFilename could throw an error when trying to use the [1] property.
 		if(fullFilename!==null&&fullFilename[1]!==null)fullFilename=fullFilename[1];
 
@@ -599,7 +599,7 @@ class Quicksave {
         if (!fullFilename)fullFilename=this.randomFilename64(this.settings.fnLength);
         
         // If it's a virtualized URL with no valid extension, best we can do is make one up and let the OS (attempt to) handle the rest.
-        let dotIndex = fullFilename.indexOf('.');
+        let dotIndex = fullFilename.lastIndexOf('.'); // Needs to be lastIndexOf for things like saving plugin files that are uploaded. Otherwise they will get extra file extensions.
         if (dotIndex == -1 || fullFilename.length - dotIndex > 5) { // If we don't have a dot, or we do but it's obviously not an extension
             if (url.endsWith('/mp4'))
                 fullFilename += '.mp4';
@@ -666,8 +666,12 @@ class Quicksave {
 		var button = e.srcElement;
 		var plugin = BdApi.getPlugin('Quicksave');
 
-
 		var url = button.parentElement.href;
+		// Attempt to handle the case where it is trying to download a webpage from the parent element instead of the image. This tries to handle images from, "https://images-ext-2.discordapp.net," as well.
+		if(url.endsWith('.html')&&button.parentElement.getElementsByTagName('img')[0]&&button.parentElement.getElementsByTagName('img')[0].src.startsWith('https://images-ext-2.discordapp.net')){
+			url=button.parentElement.getElementsByTagName('img')[0].src;
+			url=url.substring(url.indexOf('/https'),url.indexOf('?')||url.length).substring(1).replace('https/', 'https://');
+		}
 
 		if(!url) {
 			button.innerHTML = "Error";
