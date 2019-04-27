@@ -5,7 +5,7 @@
 class Quicksave {
     get local() {
 		let lang = navigator.language;
-        if (document.documentElement.getAttribute('lang')) lang = document.documentElement.getAttribute('lang').split('-')[0];
+    	if(document.documentElement.getAttribute('lang'))lang=document.documentElement.getAttribute('lang').split('-')[0];
         switch (lang) {
             case "es": // Spanish
                 return {
@@ -275,15 +275,15 @@ class Quicksave {
     getAuthor     () { return "Nirewen"             }
     getName       () { return "Quicksave"           }
     getDescription() { return this.local.description}
-    getVersion    () { return "0.3.1"               }
+    getVersion    () { return "0.3.2"               }
     start         () {
 		if (!document.getElementById(`${this.getName()}`)) BdApi.injectCSS(`${this.getName()}`, this.css.modals);
 		if (!document.getElementById(`${this.getName()}-style`)) BdApi.injectCSS(`${this.getName()}-style`, this.css.thumb);
 		if (!document.getElementById(`${this.getName()}-inputs`)) BdApi.injectCSS(`${this.getName()}-inputs`, this.css.input)
 
-		let libraryScript = document.getElementById('zeresLibraryScript');
-		if (typeof window.ZLibrary !== "undefined") this.initialize();
-		else libraryScript.addEventListener('load', () => this.initialize());
+		let libraryScript=document.getElementById('ZLibraryScript');
+		if(typeof window.ZLibrary!=="undefined")this.initialize();
+		else libraryScript.addEventListener('load',()=>this.initialize());
 	}
 	initialize() {
 		ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), "https://raw.githubusercontent.com/nirewen/Quicksave/master/Quicksave.plugin.js");
@@ -300,14 +300,13 @@ class Quicksave {
 		this.initialized = false;
 	}
 	load() {
-		let libraryScript = document.getElementById('zeresLibraryScript'), self = this;
-		if (!libraryScript) {
-			libraryScript = document.createElement('script');
-			libraryScript.setAttribute('type', 'text/javascript');
-			/*In part borrowed from Zere, so it redirects the user to download the Lib if it does not load correctly and the user does not have it.*/
-			libraryScript.onload = function() {if(typeof ZLibrary === "undefined") {window.BdApi.alert("Library Missing",`The library plugin needed for ${self.getName()} is missing and could not be loaded.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}};
-			libraryScript.setAttribute('src', 'https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
-			libraryScript.setAttribute('id', 'zeresLibraryScript');
+		let libraryScript=document.getElementById('ZLibraryScript');
+		if(!ZLibrary&&!libraryScript){
+			libraryScript=document.createElement('script');
+			libraryScript.setAttribute('type','text/javascript');
+			libraryScript.addEventListener("error",function(){if(typeof ZLibrary==="undefined"){window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing and could not be loaded.<br /><br /><a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);}}.bind(this));
+			libraryScript.setAttribute('src','https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js');
+			libraryScript.setAttribute('id','ZLibraryScript');
 			document.head.appendChild(libraryScript);
 		}
 	}
@@ -518,7 +517,7 @@ class Quicksave {
 
     getSettingsPanel() {
         let panel = $("<form>").addClass("form").css("width", "100%");
-        if (this.initialized) this.generateSettings(panel);
+        if (this.initialized)this.generateSettings(panel);
         return panel[0];
     }
     generateSettings(panel) {
@@ -554,11 +553,11 @@ class Quicksave {
             </div>`),
             $(`<button type="button" class="button-38aScr lookOutlined-3sRXeN colorRed-1TFJan sizeMedium-1AC_Sl grow-q77ONN" style='margin: 10px 0; float: right;'><div class="contents-18-Yxp">${this.local.reset}</div></button>`)
                 .click(() => {
-                    this.settings = this.defaultSettings;
-                    this.saveSettings();
-                    panel.empty();
-                    this.generateSettings(panel);
-                })
+                    this.settings=this.defaultSettings;
+					this.saveSettings();
+					panel.empty();
+					this.generateSettings(panel);
+				})
         );
     }
 
@@ -591,14 +590,16 @@ class Quicksave {
             url = url.replace(/:large$/, '');
             
         // Get the last instance of something that looks like a valid filename, the last instance of anything usable at all
-        let fullFilename = /^\w+:\/\/[^\/]+\/(?:.*?\/)*?([^?=\/\\]+\.\w{3,}(?!.*\.)|[\w-\.]+(?=$|\/mp4))/.exec(url)[1];
-        
+		let fullFilename=/^\w+:\/\/[^\/]+\/(?:.*?\/)*?([^?=\/\\]+\.\w{3,}(?!.*\.)|[\w-\.]+(?=$|\/mp4))/.exec(url);
+
+		// On some occasions fullFilename could throw an error when trying to use the [1] property.
+		if(fullFilename!==null&&fullFilename[1]!==null)fullFilename=fullFilename[1];
+
         // If the URL is so bizarre that nothing matches at all, just give it a random name
-        if (!fullFilename)
-            fullFilename = this.randomFilename64(this.settings.fnLength);
+        if (!fullFilename)fullFilename=this.randomFilename64(this.settings.fnLength);
         
         // If it's a virtualized URL with no valid extension, best we can do is make one up and let the OS (attempt to) handle the rest.
-        let dotIndex = fullFilename.indexOf('.');
+        let dotIndex = fullFilename.lastIndexOf('.'); // Needs to be lastIndexOf for things like saving plugin files that are uploaded. Otherwise they will get extra file extensions.
         if (dotIndex == -1 || fullFilename.length - dotIndex > 5) { // If we don't have a dot, or we do but it's obviously not an extension
             if (url.endsWith('/mp4'))
                 fullFilename += '.mp4';
@@ -649,8 +650,7 @@ class Quicksave {
             file.on('finish', () => {
                 button.html(self.local.quicksave);
                 ZLibrary.Toasts.show(self.local.finished, {type: 'success'});
-                if (self.settings.showfn)
-                    ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(self.local.filename, {filename}), {type: 'info'});
+                if (self.settings.showfn)ZLibrary.Toasts.show(ZLibrary.Utilities.formatTString(self.local.filename, {filename}), {type: 'info'});
                 file.close();
                 
             });
@@ -666,8 +666,12 @@ class Quicksave {
 		var button = e.srcElement;
 		var plugin = BdApi.getPlugin('Quicksave');
 
-
 		var url = button.parentElement.href;
+		// Attempt to handle the case where it is trying to download a webpage from the parent element instead of the image. This tries to handle images from, "https://images-ext-2.discordapp.net," as well.
+		if(url.endsWith('.html')&&button.parentElement.getElementsByTagName('img')[0]&&button.parentElement.getElementsByTagName('img')[0].src.startsWith('https://images-ext-2.discordapp.net')){
+			url=button.parentElement.getElementsByTagName('img')[0].src;
+			url=url.substring(url.indexOf('/https'),url.indexOf('?')||url.length).substring(1).replace('https/', 'https://');
+		}
 
 		if(!url) {
 			button.innerHTML = "Error";
