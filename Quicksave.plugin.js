@@ -260,7 +260,7 @@ class Quicksave {
                         },
                         help: {
                             original: 'Save files with original file name instead of new random one',
-                            randomizeUnknown: 'When keeping original file names, randomize if the file name is "unknown".',
+                            randomizeUnknown: 'When keeping original file names, randomise if the file name is "unknown".',
                             filename: 'Whether to show file name on ending or not',
                             autoAddNum: 'When saving a file with the same name of another, add (n) to the end of the file name.'
                         },
@@ -465,7 +465,7 @@ class Quicksave {
 		let list = document.querySelectorAll("img");
 		for (let i = 0; i < list.length; i++) {
 			let elem = list[i].parentElement;
-			//console.log(elem);
+			console.log(elem);
 			
 			if(	!elem.href
 			 || !elem.classList.contains('imageWrapper-2p5ogY')
@@ -681,7 +681,7 @@ class Quicksave {
 
 		button.innerHTML = "Wait";
         var name = url.split('/')[6];
-        //console.log(name);
+        console.log(name);
 		this.saveCurrentFile(url);
         button.innerHTML = "Saved!";
 	}
